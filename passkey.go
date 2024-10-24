@@ -6,13 +6,26 @@ import (
 	"net/http"
 
 	"github.com/go-webauthn/webauthn/protocol"
-	"github.com/teamhanko/passkey-server/api/dto/request"
-	"github.com/teamhanko/passkey-server/api/dto/response"
 )
+
+type InitRegistrationRequest struct {
+	UserId      string  `json:"user_id"`
+	Username    string  `json:"username"`
+	DisplayName *string `json:"display_name"`
+	Icon        *string `json:"icon"`
+}
+
+type InitLoginRequest struct {
+	UserId *string `json:"user_id"`
+}
+
+type TokenResponse struct {
+	Token string `json:"token"`
+}
 
 func (c *Client) InitRegistration(
 	ctx context.Context,
-	req request.InitRegistrationDto) (*protocol.CredentialCreation, error) {
+	req InitRegistrationRequest) (*protocol.CredentialCreation, error) {
 	var resp protocol.CredentialCreation
 	if err := c.requester.do(
 		ctx,
@@ -28,7 +41,7 @@ func (c *Client) InitRegistration(
 func (c *Client) FinalizeRegistration(
 	ctx context.Context,
 	req protocol.CredentialCreationResponse) (string, error) {
-	var resp response.TokenDto
+	var resp TokenResponse
 	if err := c.requester.do(
 		ctx,
 		http.MethodPost,
@@ -42,7 +55,7 @@ func (c *Client) FinalizeRegistration(
 
 func (c *Client) InitLogin(
 	ctx context.Context,
-	req request.InitLoginDto) (*protocol.CredentialAssertion, error) {
+	req InitLoginRequest) (*protocol.CredentialAssertion, error) {
 	var resp protocol.CredentialAssertion
 	if err := c.requester.do(
 		ctx,
@@ -58,7 +71,7 @@ func (c *Client) InitLogin(
 func (c *Client) FinalizeLogin(
 	ctx context.Context,
 	req protocol.CredentialAssertionResponse) (string, error) {
-	var resp response.TokenDto
+	var resp TokenResponse
 	if err := c.requester.do(
 		ctx,
 		http.MethodPost,

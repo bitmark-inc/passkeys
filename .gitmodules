@@ -1,3 +1,0 @@
-[submodule "submodules/passkeys"]
-	path = submodules/passkeys
-	url = https://github.com/teamhanko/passkeys
