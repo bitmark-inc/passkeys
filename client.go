@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -49,7 +50,7 @@ func (r *requester) do(
 		}
 	}
 
-	fullURL := fmt.Sprintf("%s/%s",
+	fullURL := fmt.Sprintf("%s%s",
 		r.baseURL,
 		path)
 
@@ -71,15 +72,13 @@ func (r *requester) do(
 	}
 	defer resp.Body.Close()
 
-	dec := json.NewDecoder(resp.Body)
 	code := resp.StatusCode
 	if code < 200 || code >= 300 {
-		var errResp string
-		if err := dec.Decode(&errResp); nil != err {
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
 			return err
 		}
-		return errors.New(errResp)
+		return errors.New(string(data))
 	}
-
-	return dec.Decode(result)
+	return json.NewDecoder(resp.Body).Decode(result)
 }

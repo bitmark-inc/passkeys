@@ -35,7 +35,7 @@ func (c *Client) InitRegistration(
 		&resp); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	return &resp, nil
 }
 
 func (c *Client) FinalizeRegistration(
