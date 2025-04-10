@@ -2,7 +2,10 @@ module github.com/bitmark-inc/passkeys
 
 go 1.21
 
-require github.com/go-webauthn/webauthn v0.10.0
+require (
+	github.com/go-webauthn/webauthn v0.10.0
+	github.com/gofrs/uuid v4.4.0+incompatible
+)
 
 require (
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect

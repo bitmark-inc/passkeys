@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-webauthn/webauthn/protocol"
+	"github.com/gofrs/uuid"
 )
 
 type InitRegistrationRequest struct {
@@ -21,6 +23,40 @@ type InitLoginRequest struct {
 
 type TokenResponse struct {
 	Token string `json:"token"`
+}
+
+type Credential struct {
+	ID              string     `json:"id"`
+	Name            *string    `json:"name,omitempty"`
+	PublicKey       string     `json:"public_key"`
+	AttestationType string     `json:"attestation_type"`
+	AAGUID          uuid.UUID  `json:"aaguid"`
+	LastUsedAt      *time.Time `json:"last_used_at,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
+	Transports      []string   `json:"transports"`
+	BackupEligible  bool       `json:"backup_eligible"`
+	BackupState     bool       `json:"backup_state"`
+	IsMFA           bool       `json:"is_mfa"`
+}
+
+func (c *Client) GetCredential(ctx context.Context, userID string) (*Credential, error) {
+	var resp []Credential
+	if err := c.requester.do(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf("/%s/credentials?user_id=%s", c.tenantID, userID),
+		nil,
+		&resp); err != nil {
+		return nil, err
+	}
+	if len(resp) == 0 {
+		return nil, nil
+	}
+	if len(resp) > 1 {
+		return nil, fmt.Errorf("multiple credentials found for user %s", userID)
+	}
+
+	return &resp[0], nil
 }
 
 func (c *Client) InitRegistration(
